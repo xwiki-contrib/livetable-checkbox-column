@@ -118,132 +118,132 @@
       <cache>long</cache>
     </property>
     <property>
-      <code>var XWiki = (function(XWiki) {&#xd;
-// Start XWiki augmentation.&#xd;
-var widgets = XWiki.widgets = XWiki.widgets || {};&#xd;
-&#xd;
-widgets.LivetableCheckboxColumn = Class.create({&#xd;
-  tableId : null,&#xd;
-  columnIndex : null,&#xd;
-  columnName : null,&#xd;
-  cbValuesContainer : null,&#xd;
-  serviceDocument : null,&#xd;
-&#xd;
-  initialize : function(params) {&#xd;
-    // Set param values&#xd;
-    this.tableId = params.tableId;&#xd;
-    this.columnName = params.columnName;&#xd;
-    this.serviceDocument = params.serviceDocument&#xd;
-    var buttonId = params.buttonId;&#xd;
-    this.cbValuesContainer = $(this.tableId + '-CBValues');&#xd;
-&#xd;
-    // Add new elements in the livetable&#xd;
-    if(!this.cbValuesContainer) {&#xd;
-      this.cbValuesContainer = new Element('div', {'id' : this.tableId + '-CBValues', 'class' : 'livetable-CBvalues'});&#xd;
-      $(this.tableId).insert({'before' : this.cbValuesContainer});&#xd;
-      var headerRow = $(this.tableId).down('.xwiki-livetable-display-header').down('tr');&#xd;
-      var filterRow = headerRow.next();&#xd;
-      var columnHeader = headerRow.select('th').forEach(function(th, index){&#xd;
-        if(th.down('a') &amp;&amp; th.down('a').rel == this.columnName) {&#xd;
-          this.columnIndex = index;&#xd;
-          // Add checkbox column header&#xd;
-          var checkboxTh = new Element('th', {'class' : 'xwiki-livetable-display-header-text'});           &#xd;
-          var checkboxTd = new Element('td', {'class' : 'xwiki-livetable-display-header-filter'});&#xd;
-          th.insert({&#xd;
-            'before' : checkboxTh&#xd;
-          });&#xd;
-          filterRow.insert({&#xd;
-            'top' : checkboxTd&#xd;
-          });&#xd;
-        }&#xd;
-      }.bind(this));&#xd;
-    }&#xd;
-&#xd;
-    // Each time a new row is added to the table, add the checkbox cell&#xd;
-    if(this.columnIndex != null) {&#xd;
-      document.observe('xwiki:livetable:' + this.tableId + ':newrow', function(event){&#xd;
-        this.addCheckboxToRow(event)&#xd;
-      }.bind(this));&#xd;
-    }&#xd;
-&#xd;
-    // When clicking on the given button, send data to the service document&#xd;
-    if($(buttonId)) {&#xd;
-      // Need to stop observing click event,&#xd;
-      // otherwise a new observation is fired every time the livetable page is changed&#xd;
-      $(buttonId).stopObserving('click');&#xd;
-      $(buttonId).observe('click', function(event){&#xd;
-        this.sendDataToService(event);&#xd;
-      }.bind(this));&#xd;
-    }&#xd;
-  },&#xd;
-&#xd;
-  addCheckboxToRow : function(event) {&#xd;
-    var row = event.memo.row;&#xd;
-&#xd;
-    if(!row.down('input[name=checkboxSelect]')) {&#xd;
-&#xd;
-      // The column could be hidden -> inthat case, row doesn't have a corresponding td element for that column&#xd;
-      // This is why we're using the JSON data&#xd;
-      var data = event.memo.data;&#xd;
-&#xd;
-      // Col name has to match the one in JSON&#xd;
-      var dataColName = this.columnName.replace(/doc./g, 'doc_')&#xd;
-&#xd;
-      // Get the row value for the given column&#xd;
-      var rowValue = data[dataColName + '_value'];&#xd;
-      if(typeof rowValue === "undefined") {&#xd;
-        // Default values like doc_fullName ...&#xd;
-        rowValue = data[dataColName];&#xd;
-      }&#xd;
-      if(typeof rowValue !== "undefined") {&#xd;
-        var checkboxSelect = new Element('input', {'type' : 'checkbox', 'name' : 'checkboxSelect', 'value' : rowValue});&#xd;
-        this.cbValuesContainer.select('input').each(function(input){&#xd;
-          if(input.value === rowValue) {&#xd;
-            checkboxSelect.checked = true;&#xd;
-          }&#xd;
-        });&#xd;
-        row.insert({'top' : checkboxSelect});&#xd;
-        checkboxSelect.observe('change', function(event){&#xd;
-          if(checkboxSelect.checked) {&#xd;
-            var inputElem = new Element('input', {'name' : this.tableId + '-cb', 'value' : rowValue});&#xd;
-            this.cbValuesContainer.insert({'bottom' : inputElem});&#xd;
-          } else {&#xd;
-            this.cbValuesContainer.select('input').each(function(input){&#xd;
-              if(input.value === rowValue) {&#xd;
-                input.parentNode.removeChild(input);&#xd;
-              }&#xd;
-            });&#xd;
-          }&#xd;
-        }.bind(this));&#xd;
-      }&#xd;
-    }&#xd;
-  },&#xd;
-&#xd;
-  sendDataToService : function(event) {&#xd;
-    event.stop();&#xd;
-    var urlParams = 'xpage=plain&amp;autputSyntax=plain';&#xd;
-    this.cbValuesContainer.select('input').each(function(input){&#xd;
-      urlParams += '&amp;cbData=' + encodeURIComponent(input.value);&#xd;
-    });&#xd;
-    ajaxURL = this.serviceDocument.getURL();&#xd;
-    new Ajax.Request(this.serviceDocument.getURL(), {&#xd;
-      parameters: urlParams,&#xd;
-      onSuccess : function(response) {&#xd;
-        console.debug(response.responseText);&#xd;
-      }&#xd;
-    });&#xd;
-    &#xd;
-  }&#xd;
-});&#xd;
-&#xd;
-function init() {}&#xd;
-&#xd;
-// When the document is loaded, enable the keyboard listener that triggers the dialog.&#xd;
-(XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", init);&#xd;
-&#xd;
-// End XWiki augmentation.&#xd;
-return XWiki;&#xd;
-}(XWiki || {}));&#xd;
+      <code>var XWiki = (function(XWiki) {
+// Start XWiki augmentation.
+var widgets = XWiki.widgets = XWiki.widgets || {};
+
+widgets.LivetableCheckboxColumn = Class.create({
+  tableId : null,
+  columnIndex : null,
+  columnName : null,
+  cbValuesContainer : null,
+  serviceDocument : null,
+
+  initialize : function(params) {
+    // Set param values
+    this.tableId = params.tableId;
+    this.columnName = params.columnName;
+    this.serviceDocument = params.serviceDocument
+    var buttonId = params.buttonId;
+    this.cbValuesContainer = $(this.tableId + '-CBValues');
+
+    // Add new elements in the livetable
+    if(!this.cbValuesContainer) {
+      this.cbValuesContainer = new Element('div', {'id' : this.tableId + '-CBValues', 'class' : 'livetable-CBvalues'});
+      $(this.tableId).insert({'before' : this.cbValuesContainer});
+      var headerRow = $(this.tableId).down('.xwiki-livetable-display-header').down('tr');
+      var filterRow = headerRow.next();
+      var columnHeader = headerRow.select('th').forEach(function(th, index){
+        if(th.down('a') &amp;&amp; th.down('a').rel == this.columnName) {
+          this.columnIndex = index;
+          // Add checkbox column header
+          var checkboxTh = new Element('th', {'class' : 'xwiki-livetable-display-header-text'});           
+          var checkboxTd = new Element('td', {'class' : 'xwiki-livetable-display-header-filter'});
+          th.insert({
+            'before' : checkboxTh
+          });
+          filterRow.insert({
+            'top' : checkboxTd
+          });
+        }
+      }.bind(this));
+    }
+
+    // Each time a new row is added to the table, add the checkbox cell
+    if(this.columnIndex != null) {
+      document.observe('xwiki:livetable:' + this.tableId + ':newrow', function(event){
+        this.addCheckboxToRow(event)
+      }.bind(this));
+    }
+
+    // When clicking on the given button, send data to the service document
+    if($(buttonId)) {
+      // Need to stop observing click event,
+      // otherwise a new observation is fired every time the livetable page is changed
+      $(buttonId).stopObserving('click');
+      $(buttonId).observe('click', function(event){
+        this.sendDataToService(event);
+      }.bind(this));
+    }
+  },
+
+  addCheckboxToRow : function(event) {
+    var row = event.memo.row;
+
+    if(!row.down('input[name=checkboxSelect]')) {
+
+      // The column could be hidden -> inthat case, row doesn't have a corresponding td element for that column
+      // This is why we're using the JSON data
+      var data = event.memo.data;
+
+      // Col name has to match the one in JSON
+      var dataColName = this.columnName.replace(/doc./g, 'doc_')
+
+      // Get the row value for the given column
+      var rowValue = data[dataColName + '_value'];
+      if(typeof rowValue === "undefined") {
+        // Default values like doc_fullName ...
+        rowValue = data[dataColName];
+      }
+      if(typeof rowValue !== "undefined") {
+        var checkboxSelect = new Element('input', {'type' : 'checkbox', 'name' : 'checkboxSelect', 'value' : rowValue});
+        this.cbValuesContainer.select('input').each(function(input){
+          if(input.value === rowValue) {
+            checkboxSelect.checked = true;
+          }
+        });
+        row.insert({'top' : checkboxSelect});
+        checkboxSelect.observe('change', function(event){
+          if(checkboxSelect.checked) {
+            var inputElem = new Element('input', {'name' : this.tableId + '-cb', 'value' : rowValue});
+            this.cbValuesContainer.insert({'bottom' : inputElem});
+          } else {
+            this.cbValuesContainer.select('input').each(function(input){
+              if(input.value === rowValue) {
+                input.parentNode.removeChild(input);
+              }
+            });
+          }
+        }.bind(this));
+      }
+    }
+  },
+
+  sendDataToService : function(event) {
+    event.stop();
+    var urlParams = 'xpage=plain&amp;autputSyntax=plain';
+    this.cbValuesContainer.select('input').each(function(input){
+      urlParams += '&amp;cbData=' + encodeURIComponent(input.value);
+    });
+    ajaxURL = this.serviceDocument.getURL();
+    new Ajax.Request(this.serviceDocument.getURL(), {
+      parameters: urlParams,
+      onSuccess : function(response) {
+        // Handle response here
+      }
+    });
+    
+  }
+});
+
+function init() {}
+
+// When the document is loaded, enable the keyboard listener that triggers the dialog.
+(XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", init);
+
+// End XWiki augmentation.
+return XWiki;
+}(XWiki || {}));
 </code>
     </property>
     <property>
@@ -352,8 +352,8 @@ return XWiki;&#xd;
       <cache>long</cache>
     </property>
     <property>
-      <code>.livetable-CBvalues {&#xd;
-  display: none;&#xd;
+      <code>.livetable-CBvalues {
+  display: none;
 }</code>
     </property>
     <property>
@@ -484,34 +484,34 @@ return XWiki;&#xd;
       </visibility>
     </class>
     <property>
-      <code>{{velocity}}&#xd;
-  #set($livetableId = $xcontext.macro.params.get('livetable'))&#xd;
-  #set($column = $xcontext.macro.params.get('column'))&#xd;
-  #set($serviceDocument = $xcontext.macro.params.get('serviceDocument'))&#xd;
-  #set($serviceReference = $services.model.resolveDocument($serviceDocument))&#xd;
-  #set($wikiName = $serviceReference.getWikiReference().name)&#xd;
-  #set($spaceName = $serviceReference.getLastSpaceReference().name)&#xd;
-  #set($docName = $serviceReference.name)&#xd;
-  #set($buttonId = $xcontext.macro.params.get('buttonId'))&#xd;
-  $xwiki.jsx.use('LibraCode.LivetableCheckboxColumnMacro')##&#xd;
-  $xwiki.ssx.use('LibraCode.LivetableCheckboxColumnMacro')##&#xd;
-&#xd;
-  {{html}}&#xd;
-    &lt;script language="javascript">&#xd;
-      //&lt;![CDATA[&#xd;
-        var eventId = "xwiki:livetable:${livetableId}:loadingEntries";&#xd;
-        document.observe(eventId, function(ev) {&#xd;
-          var params = {&#xd;
-            tableId : "$livetableId",&#xd;
-            columnName : "$column",&#xd;
-            serviceDocument : new XWiki.Document("$docName", "$spaceName", "$wikiName"),&#xd;
-            buttonId : "$buttonId"&#xd;
-          }&#xd;
-          new XWiki.widgets.LivetableCheckboxColumn(params);&#xd;
-        });&#xd;
-      //]]&gt;&#xd;
-    &lt;/script>&#xd;
-  {{/html}}&#xd;
+      <code>{{velocity}}
+  #set($livetableId = $xcontext.macro.params.get('livetable'))
+  #set($column = $xcontext.macro.params.get('column'))
+  #set($serviceDocument = $xcontext.macro.params.get('serviceDocument'))
+  #set($serviceReference = $services.model.resolveDocument($serviceDocument))
+  #set($wikiName = $serviceReference.getWikiReference().name)
+  #set($spaceName = $serviceReference.getLastSpaceReference().name)
+  #set($docName = $serviceReference.name)
+  #set($buttonId = $xcontext.macro.params.get('buttonId'))
+  $xwiki.jsx.use('Code.LivetableCheckboxColumnMacro')##
+  $xwiki.ssx.use('Code.LivetableCheckboxColumnMacro')##
+
+  {{html}}
+    &lt;script language="javascript">
+      //&lt;![CDATA[
+        var eventId = "xwiki:livetable:${livetableId}:loadingEntries";
+        document.observe(eventId, function(ev) {
+          var params = {
+            tableId : "$livetableId",
+            columnName : "$column",
+            serviceDocument : new XWiki.Document("$docName", "$spaceName", "$wikiName"),
+            buttonId : "$buttonId"
+          }
+          new XWiki.widgets.LivetableCheckboxColumn(params);
+        });
+      //]]&gt;
+    &lt;/script>
+  {{/html}}
 {{/velocity}}</code>
     </property>
     <property>
