@@ -146,6 +146,8 @@ widgets.LivetableCheckboxColumn = Class.create({
       var columnHeader = headerRow.select('th').forEach(function(th, index){
         if(th.down('a') &amp;&amp; th.down('a').rel == this.columnName) {
           this.columnIndex = index;
+        }
+        if(index == 0) {
           // Add checkbox column header
           var checkboxTh = new Element('th', {'class' : 'xwiki-livetable-display-header-text'});           
           var checkboxTd = new Element('td', {'class' : 'xwiki-livetable-display-header-filter'});
