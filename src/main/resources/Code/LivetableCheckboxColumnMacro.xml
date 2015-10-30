@@ -1,0 +1,806 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+<xwikidoc version="1.1">
+  <web>Code</web>
+  <name>LivetableCheckboxColumnMacro</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <parent>Code.WebHome</parent>
+  <creator>xwiki:XWiki.Admin</creator>
+  <creationDate>1445345246000</creationDate>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <date>1446130225000</date>
+  <contentUpdateDate>1446120430000</contentUpdateDate>
+  <version>1.1</version>
+  <title/>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>false</hidden>
+  <content/>
+  <object>
+    <name>Code.LivetableCheckboxColumnMacro</name>
+    <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>b47014ea-ce08-48e3-9ad3-fbcac70f2631</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>var XWiki = (function(XWiki) {&#xd;
+// Start XWiki augmentation.&#xd;
+var widgets = XWiki.widgets = XWiki.widgets || {};&#xd;
+&#xd;
+widgets.LivetableCheckboxColumn = Class.create({&#xd;
+  tableId : null,&#xd;
+  columnIndex : null,&#xd;
+  columnName : null,&#xd;
+  cbValuesContainer : null,&#xd;
+  serviceDocument : null,&#xd;
+&#xd;
+  initialize : function(params) {&#xd;
+    // Set param values&#xd;
+    this.tableId = params.tableId;&#xd;
+    this.columnName = params.columnName;&#xd;
+    this.serviceDocument = params.serviceDocument&#xd;
+    var buttonId = params.buttonId;&#xd;
+    this.cbValuesContainer = $(this.tableId + '-CBValues');&#xd;
+&#xd;
+    // Add new elements in the livetable&#xd;
+    if(!this.cbValuesContainer) {&#xd;
+      this.cbValuesContainer = new Element('div', {'id' : this.tableId + '-CBValues', 'class' : 'livetable-CBvalues'});&#xd;
+      $(this.tableId).insert({'before' : this.cbValuesContainer});&#xd;
+      var headerRow = $(this.tableId).down('.xwiki-livetable-display-header').down('tr');&#xd;
+      var filterRow = headerRow.next();&#xd;
+      var columnHeader = headerRow.select('th').forEach(function(th, index){&#xd;
+        if(th.down('a') &amp;&amp; th.down('a').rel == this.columnName) {&#xd;
+          this.columnIndex = index;&#xd;
+          // Add checkbox column header&#xd;
+          var checkboxTh = new Element('th', {'class' : 'xwiki-livetable-display-header-text'});           &#xd;
+          var checkboxTd = new Element('td', {'class' : 'xwiki-livetable-display-header-filter'});&#xd;
+          th.insert({&#xd;
+            'before' : checkboxTh&#xd;
+          });&#xd;
+          filterRow.insert({&#xd;
+            'top' : checkboxTd&#xd;
+          });&#xd;
+        }&#xd;
+      }.bind(this));&#xd;
+    }&#xd;
+&#xd;
+    // Each time a new row is added to the table, add the checkbox cell&#xd;
+    if(this.columnIndex != null) {&#xd;
+      document.observe('xwiki:livetable:' + this.tableId + ':newrow', function(event){&#xd;
+        this.addCheckboxToRow(event)&#xd;
+      }.bind(this));&#xd;
+    }&#xd;
+&#xd;
+    // When clicking on the given button, send data to the service document&#xd;
+    if($(buttonId)) {&#xd;
+      // Need to stop observing click event,&#xd;
+      // otherwise a new observation is fired every time the livetable page is changed&#xd;
+      $(buttonId).stopObserving('click');&#xd;
+      $(buttonId).observe('click', function(event){&#xd;
+        this.sendDataToService(event);&#xd;
+      }.bind(this));&#xd;
+    }&#xd;
+  },&#xd;
+&#xd;
+  addCheckboxToRow : function(event) {&#xd;
+    var row = event.memo.row;&#xd;
+&#xd;
+    if(!row.down('input[name=checkboxSelect]')) {&#xd;
+&#xd;
+      // The column could be hidden -> inthat case, row doesn't have a corresponding td element for that column&#xd;
+      // This is why we're using the JSON data&#xd;
+      var data = event.memo.data;&#xd;
+&#xd;
+      // Col name has to match the one in JSON&#xd;
+      var dataColName = this.columnName.replace(/doc./g, 'doc_')&#xd;
+&#xd;
+      // Get the row value for the given column&#xd;
+      var rowValue = data[dataColName + '_value'];&#xd;
+      if(typeof rowValue === "undefined") {&#xd;
+        // Default values like doc_fullName ...&#xd;
+        rowValue = data[dataColName];&#xd;
+      }&#xd;
+      if(typeof rowValue !== "undefined") {&#xd;
+        var checkboxSelect = new Element('input', {'type' : 'checkbox', 'name' : 'checkboxSelect', 'value' : rowValue});&#xd;
+        this.cbValuesContainer.select('input').each(function(input){&#xd;
+          if(input.value === rowValue) {&#xd;
+            checkboxSelect.checked = true;&#xd;
+          }&#xd;
+        });&#xd;
+        row.insert({'top' : checkboxSelect});&#xd;
+        checkboxSelect.observe('change', function(event){&#xd;
+          if(checkboxSelect.checked) {&#xd;
+            var inputElem = new Element('input', {'name' : this.tableId + '-cb', 'value' : rowValue});&#xd;
+            this.cbValuesContainer.insert({'bottom' : inputElem});&#xd;
+          } else {&#xd;
+            this.cbValuesContainer.select('input').each(function(input){&#xd;
+              if(input.value === rowValue) {&#xd;
+                input.parentNode.removeChild(input);&#xd;
+              }&#xd;
+            });&#xd;
+          }&#xd;
+        }.bind(this));&#xd;
+      }&#xd;
+    }&#xd;
+  },&#xd;
+&#xd;
+  sendDataToService : function(event) {&#xd;
+    event.stop();&#xd;
+    var urlParams = 'xpage=plain&amp;autputSyntax=plain';&#xd;
+    this.cbValuesContainer.select('input').each(function(input){&#xd;
+      urlParams += '&amp;cbData=' + encodeURIComponent(input.value);&#xd;
+    });&#xd;
+    ajaxURL = this.serviceDocument.getURL();&#xd;
+    new Ajax.Request(this.serviceDocument.getURL(), {&#xd;
+      parameters: urlParams,&#xd;
+      onSuccess : function(response) {&#xd;
+        console.debug(response.responseText);&#xd;
+      }&#xd;
+    });&#xd;
+    &#xd;
+  }&#xd;
+});&#xd;
+&#xd;
+function init() {}&#xd;
+&#xd;
+// When the document is loaded, enable the keyboard listener that triggers the dialog.&#xd;
+(XWiki.domIsLoaded &amp;&amp; init()) || document.observe("xwiki:dom:loaded", init);&#xd;
+&#xd;
+// End XWiki augmentation.&#xd;
+return XWiki;&#xd;
+}(XWiki || {}));&#xd;
+</code>
+    </property>
+    <property>
+      <name>Livetable Checkbox Column Macro Actions</name>
+    </property>
+    <property>
+      <parse/>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>Code.LivetableCheckboxColumnMacro</name>
+    <number>0</number>
+    <className>XWiki.StyleSheetExtension</className>
+    <guid>3511a3fb-3785-4e2b-b1a7-2b1d48253b21</guid>
+    <class>
+      <name>XWiki.StyleSheetExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <contentType>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>contentType</name>
+        <number>6</number>
+        <prettyName>Content Type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>CSS|LESS</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </contentType>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators> ,|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>.livetable-CBvalues {&#xd;
+  display: none;&#xd;
+}</code>
+    </property>
+    <property>
+      <contentType>CSS</contentType>
+    </property>
+    <property>
+      <name>Livetable Checkbox Styles</name>
+    </property>
+    <property>
+      <parse/>
+    </property>
+    <property>
+      <use>onDemand</use>
+    </property>
+  </object>
+  <object>
+    <name>Code.LivetableCheckboxColumnMacro</name>
+    <number>0</number>
+    <className>XWiki.WikiMacroClass</className>
+    <guid>5268dda5-0341-4bfe-98fb-206f7ed274fc</guid>
+    <class>
+      <name>XWiki.WikiMacroClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <code>
+        <disabled>0</disabled>
+        <name>code</name>
+        <number>9</number>
+        <prettyName>Macro code</prettyName>
+        <rows>20</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <contentDescription>
+        <disabled>0</disabled>
+        <name>contentDescription</name>
+        <number>8</number>
+        <prettyName>Content description (Not applicable for "No content" type)</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </contentDescription>
+      <contentType>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>contentType</name>
+        <number>7</number>
+        <prettyName>Macro content type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Optional|Mandatory|No content</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </contentType>
+      <defaultCategory>
+        <disabled>0</disabled>
+        <name>defaultCategory</name>
+        <number>4</number>
+        <prettyName>Default category</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultCategory>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>3</number>
+        <prettyName>Macro description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <id>
+        <disabled>0</disabled>
+        <name>id</name>
+        <number>1</number>
+        <prettyName>Macro id</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </id>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>2</number>
+        <prettyName>Macro name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <supportsInlineMode>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>supportsInlineMode</name>
+        <number>5</number>
+        <prettyName>Supports inline mode</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </supportsInlineMode>
+      <visibility>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>0</multiSelect>
+        <name>visibility</name>
+        <number>6</number>
+        <prettyName>Macro visibility</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Current User|Current Wiki|Global</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </visibility>
+    </class>
+    <property>
+      <code>{{velocity}}&#xd;
+  #set($livetableId = $xcontext.macro.params.get('livetable'))&#xd;
+  #set($column = $xcontext.macro.params.get('column'))&#xd;
+  #set($serviceDocument = $xcontext.macro.params.get('serviceDocument'))&#xd;
+  #set($serviceReference = $services.model.resolveDocument($serviceDocument))&#xd;
+  #set($wikiName = $serviceReference.getWikiReference().name)&#xd;
+  #set($spaceName = $serviceReference.getLastSpaceReference().name)&#xd;
+  #set($docName = $serviceReference.name)&#xd;
+  #set($buttonId = $xcontext.macro.params.get('buttonId'))&#xd;
+  $xwiki.jsx.use('LibraCode.LivetableCheckboxColumnMacro')##&#xd;
+  $xwiki.ssx.use('LibraCode.LivetableCheckboxColumnMacro')##&#xd;
+&#xd;
+  {{html}}&#xd;
+    &lt;script language="javascript">&#xd;
+      //&lt;![CDATA[&#xd;
+        var eventId = "xwiki:livetable:${livetableId}:loadingEntries";&#xd;
+        document.observe(eventId, function(ev) {&#xd;
+          var params = {&#xd;
+            tableId : "$livetableId",&#xd;
+            columnName : "$column",&#xd;
+            serviceDocument : new XWiki.Document("$docName", "$spaceName", "$wikiName"),&#xd;
+            buttonId : "$buttonId"&#xd;
+          }&#xd;
+          new XWiki.widgets.LivetableCheckboxColumn(params);&#xd;
+        });&#xd;
+      //]]&gt;&#xd;
+    &lt;/script>&#xd;
+  {{/html}}&#xd;
+{{/velocity}}</code>
+    </property>
+    <property>
+      <contentDescription></contentDescription>
+    </property>
+    <property>
+      <contentType>No content</contentType>
+    </property>
+    <property>
+      <defaultCategory></defaultCategory>
+    </property>
+    <property>
+      <description>Adding a column containing checkboxes that allows selecting multiple rows in a given livetable and manipulating the values of a given column by sending the data to the given service.</description>
+    </property>
+    <property>
+      <id>addCheckboxColumnToLivetable</id>
+    </property>
+    <property>
+      <name>Livetable Checkbox Column Macro</name>
+    </property>
+    <property>
+      <supportsInlineMode/>
+    </property>
+    <property>
+      <visibility>Current Wiki</visibility>
+    </property>
+  </object>
+  <object>
+    <name>Code.LivetableCheckboxColumnMacro</name>
+    <number>0</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>9209efe3-6572-4365-873c-f363bd947ea8</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <property>
+      <defaultValue></defaultValue>
+    </property>
+    <property>
+      <description>The target column to use the values of when selecting items in the checkbox column.</description>
+    </property>
+    <property>
+      <mandatory>1</mandatory>
+    </property>
+    <property>
+      <name>column</name>
+    </property>
+  </object>
+  <object>
+    <name>Code.LivetableCheckboxColumnMacro</name>
+    <number>1</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>c626bd97-f36d-4a5f-9ec1-74bdd6dd1006</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <property>
+      <defaultValue></defaultValue>
+    </property>
+    <property>
+      <description>The id of the livetable.</description>
+    </property>
+    <property>
+      <mandatory>1</mandatory>
+    </property>
+    <property>
+      <name>livetable</name>
+    </property>
+  </object>
+  <object>
+    <name>Code.LivetableCheckboxColumnMacro</name>
+    <number>2</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>276e81fe-1a81-496e-8776-945aafa47863</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <property>
+      <defaultValue></defaultValue>
+    </property>
+    <property>
+      <description>The name of the document acting as service for the selected values.</description>
+    </property>
+    <property>
+      <mandatory/>
+    </property>
+    <property>
+      <name>serviceDocument</name>
+    </property>
+  </object>
+  <object>
+    <name>Code.LivetableCheckboxColumnMacro</name>
+    <number>3</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>53ecaed5-281b-4da1-bd01-a322429ffb5f</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <property>
+      <defaultValue></defaultValue>
+    </property>
+    <property>
+      <description>The id of the element that is clicked for sending data to the service document.</description>
+    </property>
+    <property>
+      <mandatory/>
+    </property>
+    <property>
+      <name>buttonId</name>
+    </property>
+  </object>
+</xwikidoc>
