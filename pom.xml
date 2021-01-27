@@ -35,7 +35,7 @@
   </properties>
   <groupId>org.xwiki.contrib</groupId>
   <artifactId>xwiki-livetable-checkbox-column</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.0.4</version>
   <packaging>xar</packaging>
   <name>XWiki Livetable Checkbox Column Macro</name>
   <description>Adds the option to select the rows of a livetable by inserting a new column with checkboxes in the table.</description>
@@ -58,7 +58,7 @@
     <connection>scm:git:git://github.com/xwiki-contrib/livetable-checkbox-column.git</connection>
     <developerConnection>scm:git:git@github.com:xwiki-contrib/livetable-checkbox-column.git</developerConnection>
     <url>https://github.com/xwiki-contrib/livetable-checkbox-column.git</url>
-    <tag>HEAD</tag>
+    <tag>xwiki-livetable-checkbox-column-1.0.4</tag>
   </scm>
   <build>
     <extensions>
