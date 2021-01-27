@@ -126,7 +126,6 @@ var widgets = XWiki.widgets = XWiki.widgets || {};
 
 widgets.LivetableCheckboxColumn = Class.create({
   tableId : null,
-  columnIndex : null,
   columnName : null,
   cbValuesContainer : null,
   serviceDocument : null,
@@ -146,9 +145,6 @@ widgets.LivetableCheckboxColumn = Class.create({
       var headerRow = $(this.tableId).down('.xwiki-livetable-display-header').down('tr');
       var filterRow = headerRow.next();
       var columnHeader = headerRow.select('th').forEach(function(th, index){
-        if(th.down('a') &amp;&amp; (th.down('a').getAttribute('rel') == this.columnName || th.down('a').getAttribute('data-rel') == this.columnName)) {
-          this.columnIndex = index;
-        }
         if(index == 0) {
           // Add checkbox column header
           var checkboxTh = new Element('th', {'class' : 'xwiki-livetable-display-header-text'});           
@@ -164,11 +160,9 @@ widgets.LivetableCheckboxColumn = Class.create({
     }
 
     // Each time a new row is added to the table, add the checkbox cell
-    if(this.columnIndex != null) {
-      document.observe('xwiki:livetable:' + this.tableId + ':newrow', function(event){
-        this.addCheckboxToRow(event)
-      }.bind(this));
-    }
+    document.observe('xwiki:livetable:' + this.tableId + ':newrow', function(event){
+      this.addCheckboxToRow(event)
+    }.bind(this));
 
     // When clicking on the given button, send data to the service document
     if($(buttonId)) {
