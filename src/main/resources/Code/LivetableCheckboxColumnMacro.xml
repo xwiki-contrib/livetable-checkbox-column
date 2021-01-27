@@ -1,4 +1,5 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
+
 <!--
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -18,6 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
+
 <xwikidoc version="1.1">
   <web>Code</web>
   <name>LivetableCheckboxColumnMacro</name>
@@ -184,7 +186,7 @@ widgets.LivetableCheckboxColumn = Class.create({
 
     if(!row.down('input[name=checkboxSelect]')) {
 
-      // The column could be hidden -> inthat case, row doesn't have a corresponding td element for that column
+      // The column could be hidden -&gt; inthat case, row doesn't have a corresponding td element for that column
       // This is why we're using the JSON data
       var data = event.memo.data;
 
@@ -499,7 +501,7 @@ return XWiki;
   $xwiki.ssx.use('Code.LivetableCheckboxColumnMacro')##
 
   {{html}}
-    &lt;script language="javascript">
+    &lt;script language="javascript"&gt;
       //&lt;![CDATA[
         var eventId = "xwiki:livetable:${livetableId}:loadingEntries";
         document.observe(eventId, function(ev) {
@@ -512,18 +514,18 @@ return XWiki;
           new XWiki.widgets.LivetableCheckboxColumn(params);
         });
       //]]&gt;
-    &lt;/script>
+    &lt;/script&gt;
   {{/html}}
 {{/velocity}}</code>
     </property>
     <property>
-      <contentDescription></contentDescription>
+      <contentDescription/>
     </property>
     <property>
       <contentType>No content</contentType>
     </property>
     <property>
-      <defaultCategory></defaultCategory>
+      <defaultCategory/>
     </property>
     <property>
       <description>Adding a column containing checkboxes that allows selecting multiple rows in a given livetable and manipulating the values of a given column by sending the data to the given service.</description>
@@ -595,7 +597,7 @@ return XWiki;
       </name>
     </class>
     <property>
-      <defaultValue></defaultValue>
+      <defaultValue/>
     </property>
     <property>
       <description>The target column to use the values of when selecting items in the checkbox column.</description>
@@ -661,7 +663,7 @@ return XWiki;
       </name>
     </class>
     <property>
-      <defaultValue></defaultValue>
+      <defaultValue/>
     </property>
     <property>
       <description>The id of the livetable.</description>
@@ -727,7 +729,7 @@ return XWiki;
       </name>
     </class>
     <property>
-      <defaultValue></defaultValue>
+      <defaultValue/>
     </property>
     <property>
       <description>The name of the document acting as service for the selected values.</description>
@@ -793,7 +795,7 @@ return XWiki;
       </name>
     </class>
     <property>
-      <defaultValue></defaultValue>
+      <defaultValue/>
     </property>
     <property>
       <description>The id of the element that is clicked for sending data to the service document.</description>
