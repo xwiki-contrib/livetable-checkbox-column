@@ -219,7 +219,7 @@ widgets.LivetableCheckboxColumn = Class.create({
 
   sendDataToService : function(event) {
     event.stop();
-    var urlParams = 'xpage=plain&amp;autputSyntax=plain';
+    var urlParams = 'xpage=plain&amp;outputSyntax=plain';
     this.cbValuesContainer.select('input').each(function(input){
       urlParams += '&amp;cbData=' + encodeURIComponent(input.value);
     });
