@@ -56,8 +56,11 @@
       <validationScript/>
       <cache>
         <cache>0</cache>
+        <defaultValue>long</defaultValue>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>cache</name>
         <number>5</number>
@@ -71,7 +74,9 @@
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </cache>
       <code>
+        <contenttype>PureText</contenttype>
         <disabled>0</disabled>
+        <editor>PureText</editor>
         <name>code</name>
         <number>2</number>
         <prettyName>Code</prettyName>
@@ -103,6 +108,8 @@
         <cache>0</cache>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>use</name>
         <number>3</number>
@@ -127,14 +134,18 @@ var widgets = XWiki.widgets = XWiki.widgets || {};
 widgets.LivetableCheckboxColumn = Class.create({
   tableId : null,
   columnName : null,
+  title : null,
   cbValuesContainer : null,
   serviceDocument : null,
+  urlParams : null,
 
   initialize : function(params) {
     // Set param values
     this.tableId = params.tableId;
     this.columnName = params.columnName;
-    this.serviceDocument = params.serviceDocument
+    this.title = params.title;
+    this.serviceDocument = params.serviceDocument;
+    this.urlParams = params.urlParams;
     var buttonId = params.buttonId;
     this.cbValuesContainer = $(this.tableId + '-CBValues');
 
@@ -147,7 +158,7 @@ widgets.LivetableCheckboxColumn = Class.create({
       var columnHeader = headerRow.select('th').forEach(function(th, index){
         if(index == 0) {
           // Add checkbox column header
-          var checkboxTh = new Element('th', {'class' : 'xwiki-livetable-display-header-text'});           
+          var checkboxTh = new Element('th', {'class' : 'xwiki-livetable-display-header-text'}).update(this.title);
           var checkboxTd = new Element('td', {'class' : 'xwiki-livetable-display-header-filter'});
           th.insert({
             'before' : checkboxTh
@@ -180,7 +191,7 @@ widgets.LivetableCheckboxColumn = Class.create({
 
     if(!row.down('input[name=checkboxSelect]')) {
 
-      // The column could be hidden -&gt; inthat case, row doesn't have a corresponding td element for that column
+      // The column could be hidden -> inthat case, row doesn't have a corresponding td element for that column
       // This is why we're using the JSON data
       var data = event.memo.data;
 
@@ -219,15 +230,25 @@ widgets.LivetableCheckboxColumn = Class.create({
 
   sendDataToService : function(event) {
     event.stop();
-    var urlParams = 'xpage=plain&amp;outputSyntax=plain';
+    var urlParams = this.urlParams;
     this.cbValuesContainer.select('input').each(function(input){
-      urlParams += '&amp;cbData=' + encodeURIComponent(input.value);
+      parameter = 'cbData=' + encodeURIComponent(input.value);
+
+      if (urlParams.length === 0) {
+        urlParams = parameter;
+      } else {
+        urlParams += '&amp;' + parameter;
+      }
     });
     ajaxURL = this.serviceDocument.getURL();
+    tableId = this.tableId;
     new Ajax.Request(this.serviceDocument.getURL(), {
       parameters: urlParams,
       onSuccess : function(response) {
-        // Handle response here
+        document.dispatchEvent(new Event('xwiki:livetable:' + tableId + ':checkboxes:success'));
+      },
+      onFailure : function(response) {
+        document.dispatchEvent(new Event('xwiki:livetable:' + tableId + ':checkboxes:failure'));
       }
     });
     
@@ -270,8 +291,11 @@ return XWiki;
       <validationScript/>
       <cache>
         <cache>0</cache>
+        <defaultValue>long</defaultValue>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>cache</name>
         <number>5</number>
@@ -285,7 +309,9 @@ return XWiki;
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </cache>
       <code>
+        <contenttype>PureText</contenttype>
         <disabled>0</disabled>
+        <editor>PureText</editor>
         <name>code</name>
         <number>2</number>
         <prettyName>Code</prettyName>
@@ -298,6 +324,8 @@ return XWiki;
         <cache>0</cache>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>contentType</name>
         <number>6</number>
@@ -333,6 +361,8 @@ return XWiki;
         <cache>0</cache>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>use</name>
         <number>3</number>
@@ -381,10 +411,51 @@ return XWiki;
       <defaultWeb/>
       <nameField/>
       <validationScript/>
+      <async_cached>
+        <defaultValue>0</defaultValue>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType/>
+        <name>async_cached</name>
+        <number>12</number>
+        <prettyName>Cached</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </async_cached>
+      <async_context>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>1</multiSelect>
+        <name>async_context</name>
+        <number>13</number>
+        <prettyName>Context elements</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>, </separator>
+        <separators>|, </separators>
+        <size>5</size>
+        <unmodifiable>0</unmodifiable>
+        <values>action=Action|doc.reference=Document|icon.theme=Icon theme|locale=Language|rendering.defaultsyntax=Default syntax|rendering.restricted=Restricted|rendering.targetsyntax=Target syntax|request.base=Request base URL|request.parameters=Request parameters|request.url=Request URL|request.wiki=Request wiki|user=User|wiki=Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </async_context>
+      <async_enabled>
+        <defaultValue>0</defaultValue>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType/>
+        <name>async_enabled</name>
+        <number>11</number>
+        <prettyName>Asynchronous rendering</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </async_enabled>
       <code>
         <disabled>0</disabled>
+        <editor>Text</editor>
         <name>code</name>
-        <number>9</number>
+        <number>10</number>
         <prettyName>Macro code</prettyName>
         <rows>20</rows>
         <size>40</size>
@@ -392,23 +463,47 @@ return XWiki;
         <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
       </code>
       <contentDescription>
+        <contenttype>PureText</contenttype>
         <disabled>0</disabled>
+        <editor>PureText</editor>
         <name>contentDescription</name>
-        <number>8</number>
+        <number>9</number>
         <prettyName>Content description (Not applicable for "No content" type)</prettyName>
         <rows>5</rows>
         <size>40</size>
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
       </contentDescription>
+      <contentJavaType>
+        <cache>0</cache>
+        <defaultValue>Unknown</defaultValue>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <freeText>allowed</freeText>
+        <largeStorage>1</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>contentJavaType</name>
+        <number>8</number>
+        <picker>1</picker>
+        <prettyName>Macro content type</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>|</separator>
+        <separators>|</separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>Unknown|Wiki</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </contentJavaType>
       <contentType>
         <cache>0</cache>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>contentType</name>
         <number>7</number>
-        <prettyName>Macro content type</prettyName>
+        <prettyName>Macro content availability</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator>|</separator>
         <separators>|</separators>
@@ -427,7 +522,9 @@ return XWiki;
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </defaultCategory>
       <description>
+        <contenttype>PureText</contenttype>
         <disabled>0</disabled>
+        <editor>PureText</editor>
         <name>description</name>
         <number>3</number>
         <prettyName>Macro description</prettyName>
@@ -468,6 +565,8 @@ return XWiki;
         <cache>0</cache>
         <disabled>0</disabled>
         <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>visibility</name>
         <number>6</number>
@@ -482,44 +581,59 @@ return XWiki;
       </visibility>
     </class>
     <property>
+      <async_cached>0</async_cached>
+    </property>
+    <property>
+      <async_context/>
+    </property>
+    <property>
+      <async_enabled>0</async_enabled>
+    </property>
+    <property>
       <code>{{velocity}}
   #set($livetableId = $xcontext.macro.params.get('livetable'))
   #set($column = $xcontext.macro.params.get('column'))
   #set($serviceDocument = $xcontext.macro.params.get('serviceDocument'))
-  #set($serviceReference = $services.model.resolveDocument($serviceDocument))
-  #set($wikiName = $serviceReference.getWikiReference().name)
-  #set($spaceName = $serviceReference.getLastSpaceReference().name)
-  #set($docName = $serviceReference.name)
+  #set($title = $xcontext.macro.params.get('title'))
+  #if ("$!{title}" == '')
+    #set($title = '')
+  #end
+  #set($urlParams = $xcontext.macro.params.get('urlParams'))
   #set($buttonId = $xcontext.macro.params.get('buttonId'))
   $xwiki.jsx.use('Code.LivetableCheckboxColumnMacro')##
   $xwiki.ssx.use('Code.LivetableCheckboxColumnMacro')##
 
   {{html}}
-    &lt;script language="javascript"&gt;
+    &lt;script language="javascript">
       //&lt;![CDATA[
         var eventId = "xwiki:livetable:${livetableId}:loadingEntries";
         document.observe(eventId, function(ev) {
           var params = {
             tableId : "$livetableId",
             columnName : "$column",
-            serviceDocument : new XWiki.Document("$docName", "$spaceName", "$wikiName"),
-            buttonId : "$buttonId"
+            title : "$services.localization.render($title)",
+            serviceDocument : new XWiki.Document(XWiki.Model.resolve("$!{serviceDocument}", XWiki.EntityType.DOCUMENT)),
+            buttonId : "$buttonId",
+            urlParams : "$!{urlParams}"
           }
           new XWiki.widgets.LivetableCheckboxColumn(params);
         });
       //]]&gt;
-    &lt;/script&gt;
+    &lt;/script>
   {{/html}}
 {{/velocity}}</code>
     </property>
     <property>
-      <contentDescription/>
+      <contentDescription></contentDescription>
+    </property>
+    <property>
+      <contentJavaType></contentJavaType>
     </property>
     <property>
       <contentType>No content</contentType>
     </property>
     <property>
-      <defaultCategory/>
+      <defaultCategory></defaultCategory>
     </property>
     <property>
       <description>Adding a column containing checkboxes that allows selecting multiple rows in a given livetable and manipulating the values of a given column by sending the data to the given service.</description>
@@ -589,9 +703,18 @@ return XWiki;
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
     </class>
     <property>
-      <defaultValue/>
+      <defaultValue></defaultValue>
     </property>
     <property>
       <description>The target column to use the values of when selecting items in the checkbox column.</description>
@@ -601,6 +724,9 @@ return XWiki;
     </property>
     <property>
       <name>column</name>
+    </property>
+    <property>
+      <type></type>
     </property>
   </object>
   <object>
@@ -655,9 +781,18 @@ return XWiki;
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
     </class>
     <property>
-      <defaultValue/>
+      <defaultValue></defaultValue>
     </property>
     <property>
       <description>The id of the livetable.</description>
@@ -667,6 +802,9 @@ return XWiki;
     </property>
     <property>
       <name>livetable</name>
+    </property>
+    <property>
+      <type></type>
     </property>
   </object>
   <object>
@@ -721,9 +859,18 @@ return XWiki;
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
     </class>
     <property>
-      <defaultValue/>
+      <defaultValue></defaultValue>
     </property>
     <property>
       <description>The name of the document acting as service for the selected values.</description>
@@ -733,6 +880,9 @@ return XWiki;
     </property>
     <property>
       <name>serviceDocument</name>
+    </property>
+    <property>
+      <type></type>
     </property>
   </object>
   <object>
@@ -787,9 +937,18 @@ return XWiki;
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
       </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
     </class>
     <property>
-      <defaultValue/>
+      <defaultValue></defaultValue>
     </property>
     <property>
       <description>The id of the element that is clicked for sending data to the service document.</description>
@@ -799,6 +958,165 @@ return XWiki;
     </property>
     <property>
       <name>buttonId</name>
+    </property>
+    <property>
+      <type></type>
+    </property>
+  </object>
+  <object>
+    <name>Code.LivetableCheckboxColumnMacro</name>
+    <number>4</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>6e2dff74-e30a-4d43-b22d-d3499eae1b1b</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue></defaultValue>
+    </property>
+    <property>
+      <description>The title of the column in which the check-boxes will be added. The value can be a translation key, in which case it will get interpreted.</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>title</name>
+    </property>
+    <property>
+      <type></type>
+    </property>
+  </object>
+  <object>
+    <name>Code.LivetableCheckboxColumnMacro</name>
+    <number>5</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>c5d96e3b-ec17-4f62-a38d-9874a2d9bcc0</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue>xpage=plain&amp;outputSyntax=plain</defaultValue>
+    </property>
+    <property>
+      <description>Extra URL parameters to be passed to the page that is called.</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>urlParams</name>
+    </property>
+    <property>
+      <type></type>
     </property>
   </object>
 </xwikidoc>
